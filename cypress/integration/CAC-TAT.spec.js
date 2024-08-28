@@ -229,7 +229,7 @@ describe('Central de Atendimento ao Cliente TAT', function () {
           })
      })
 
-     it.only('econtre o gato', function(){
+     it('econtre o gato', function(){
         cy.get('#cat').invoke('show').should('be.visible')
      })
 
