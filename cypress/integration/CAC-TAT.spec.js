@@ -1,5 +1,6 @@
 /// <reference types="Cypress" />
 
+const longText = 'teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste, '
 
 
 describe('Central de Atendimento ao Cliente TAT', function () {
@@ -12,7 +13,6 @@ describe('Central de Atendimento ao Cliente TAT', function () {
     })
 
     it('preenche os campos obrigatórios e envia o formulário', function () {
-        const longText = 'teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste,teste, '
         cy.get('#firstName').type('Raielle')
         cy.get('#lastName').type('Pigozzo Mendes')
         cy.get('#email').type('raiely39@gmail.com')
@@ -163,6 +163,75 @@ describe('Central de Atendimento ao Cliente TAT', function () {
         
         cy.contains('Talking About Testing').should('be.visible')
     })
+
+    it('validação que a mensagem de sucesso aparece e desaparece após 3s', function(){
+        cy.clock()    
+        cy.get('#firstName').type('rai')
+        cy.get('#lastName').type('pm')
+        cy.get('#email').type('r@gmail.com')
+        cy.get('#open-text-area').type('o')
+        cy.contains('button', 'Enviar').click()
+        cy.get('.success').should('be.visible')
+        cy.tick(3000)
+        cy.get('.success').should('not.be.visible')
+    })
+
+    it('validação que a mensagens de erro aparece e desaparece após 3s', function (){
+        cy.clock()
+        cy.contains('button', 'Enviar').click()
+        cy.get('.error').should('be.visible')
+        cy.tick(3000)
+        cy.get('.error').should('not.be.visible')
+
+    })
+
+    Cypress._.times(2, () => {
+        it('estabilida da validação que a mensagens de erro aparece e desaparece após 3s', function (){
+            cy.clock()
+            cy.contains('button', 'Enviar').click()
+            cy.get('.error').should('be.visible')
+            cy.tick(3000)
+            cy.get('.error').should('not.be.visible')
+    
+        })   
+    })
+
+    it('exibe e esconde as mensagens de sucesso e erro usando o .invoke', () => {
+        cy.get('.success')
+          .should('not.be.visible')
+          .invoke('show')
+          .should('be.visible')
+          .and('contain', 'Mensagem enviada com sucesso.')
+          .invoke('hide')
+          .should('not.be.visible')
+        cy.get('.error')
+          .should('not.be.visible')
+          .invoke('show')
+          .should('be.visible')
+          .and('contain', 'Valide os campos obrigatórios!')
+          .invoke('hide')
+          .should('not.be.visible')
+      })
+
+    it('preenche a area de texto usando o comando invoke', function(){
+        cy.get('#open-text-area').invoke('val', longText)
+        .should('have.value', longText)
+     })
+     
+     it('faz uma requisição HTTP', function(){
+        cy.request({
+            method:'GET', 
+            url: 'https://cac-tat.s3.eu-central-1.amazonaws.com/index.html'
+        }).should((response) => {
+            expect(response.status).to.equal(200);
+            expect(response.statusText).to.equal('OK')
+            expect(response.body).to.contains('CAC TAT')
+          })
+     })
+
+     it.only('econtre o gato', function(){
+        cy.get('#cat').invoke('show').should('be.visible')
+     })
 
 })
 
